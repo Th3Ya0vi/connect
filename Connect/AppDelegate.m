@@ -7,15 +7,44 @@
 //
 
 #import "AppDelegate.h"
+#import <Parse/Parse.h>
 
 @implementation AppDelegate
+@synthesize eventBox;
 
 @synthesize window = _window;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    [Parse setApplicationId:@"32yo2B09RO9SkiyooZJuavH0ayg2KDFaETeHnBzr"
+                  clientKey:@"Q4ubzruR3OlPLSuDwLyqFiIC2431ccXNLbjcHLIn"];
+    
+    [application registerForRemoteNotificationTypes: 
+     UIRemoteNotificationTypeBadge |
+     UIRemoteNotificationTypeAlert |             
+     UIRemoteNotificationTypeSound];
+    
     return YES;
+}
+
+- (void)application:(UIApplication *)application 
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
+{
+    [PFPush storeDeviceToken:newDeviceToken]; // Send parse the device token
+    // Subscribe this user to the broadcast channel, "" 
+    [PFPush subscribeToChannelInBackground:@"" block:^(BOOL succeeded, NSError *error) {
+        if (succeeded) {
+            NSLog(@"Successfully subscribed to the broadcast channel.");
+        } else {
+            NSLog(@"Failed to subscribe to the broadcast channel.");
+        }
+    }];
+}
+
+- (void)application:(UIApplication *)application 
+didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [PFPush handlePush:userInfo];
 }
 							
 - (void)applicationWillResignActive:(UIApplication *)application
